@@ -35,7 +35,7 @@ MODULE output_mod
      & (:, :), veli_o (:, :), vish_o (:, :)
       DOUBLE PRECISION, ALLOCATABLE, PRIVATE :: dtk (:), eht_flux_int &
      & (:), ehtfx_int (:), gtph_int (:), mtph_int (:), pvwis (:), &
-     & pdrop_kt (:), volis (:, :)
+     & pdrop_kt (:), volis (:, :), massphase_x (:), presphase_x (:)
       DOUBLE PRECISION, PRIVATE :: entcor0, entcor1, eht_pos_int_1, &
      & entbdy_int (2), grcool, grcadj, htflux, inefct, inefnm, inefn1, &
      & inefn2, megdif, ntcadj, ntacop, pdrop_int, prloss, pvwk0, pvwk1, &
@@ -376,6 +376,8 @@ CONTAINS
          tpmb (0:ncyc) = prsi_o (nx, 0:ncyc)
          tpma (0:ncyc) = prsi_o (1, 0:ncyc) - prsi_o (nx, 0:ncyc)
          pdpphs = find_phase (tpma, tpmb, 8, 4)
+
+         CALL PHASE_ALL_X
 !
 !
 !      print and plot results
@@ -966,6 +968,16 @@ CONTAINS
             laby = " FLUX AVE OVER CYCLE (W)"
             nxa (1) = nx
             CALL dwtcrvm (xs, tmpi, nx, nxa, 3, 1, label, labx, laby)
+
+            ! phase of mass and pressure
+            tmpi (1:nx, 1) = massphase_x
+            tmpi (1:nx, 2) = presphase_x
+            WRITE (label, "('PH_mass_pright:a PH_pres_pright:b' )")
+            WRITE (labx, "(' X   AT T=',f11.3)") tcycle_lc
+            laby = " PHASE (DEG)"
+            nxa (1) = nx
+            CALL dwtcrvm (xs, tmpi, nx, nxa, 2, 1, label, labx, laby)
+
          END IF
          IF (nplt >= 3) THEN
             tmph (1:nxh, 1) = qh_int (1:nxh) * herz * zlen
@@ -1344,10 +1356,10 @@ CONTAINS
          DOUBLE PRECISION               ::  y (3), t (3)
          INTEGER                        ::  mx, mx1 (1), err_id(4)
          DOUBLE PRECISION eps, f01, f012, tmp
-         CHARACTER (LEN=15), DIMENSION(8) :: var_name = (/ "   massflux_lft", &
+         CHARACTER (LEN=15), DIMENSION(10) :: var_name = (/ "   massflux_lft", &
             &"   massflux_rht", "   pressure_lft", "   pressure_rht", &
             &"compression_vol","  expansion_vol", "  midpoint_temp", &
-            &"     press_drop" /)
+            &"     press_drop", "      mass_allx", "      pres_allx"/)
          DATA eps / 1.d-5 /
 !
          err_id(1:4) = 0
@@ -1422,6 +1434,28 @@ CONTAINS
          END IF
          RETURN
       END SUBROUTINE tmax
+
+
+      SUBROUTINE PHASE_ALL_X
+!     calculates the phase of mass and pressure at all x locations
+!     relative to pressure at right end
+!     saves to two arrays: massphase_x, presphase_x
+         INTEGER :: II
+         REAL :: phasemass, phasepres
+         ALLOCATE (massphase_x(nx), presphase_x(nx))
+
+         DO II = 1, nx
+            tpmb (0:ncyc) = prsi_o (nx, 0:ncyc) !right end pressure
+            tpma (0:ncyc) = mfxi_o (II, 0:ncyc)
+            phasemass = find_phase (tpma, tpmb, 9, 4) !phase of mass flow
+            tpma (0:ncyc) = prsi_o (II, 0:ncyc)
+            phasepres = find_phase (tpma, tpmb, 10, 4) !phase of pressure
+            !WRITE(*,9910) phasemass, phasepres
+            !9910 FORMAT (2f10.4)
+            massphase_x(II) = phasemass
+            presphase_x(II) = phasepres
+         END DO
+      END SUBROUTINE
 !
 END MODULE output_mod
 !
