@@ -399,7 +399,7 @@ CONTAINS
         & fricth_o, gfx_o, gfx_int, gtph_int, hcnh_o, hth_o, hfx_o, &
         & hfx_int, matcdh_o, mfxh_o, mtph_int, pgradh_o, prsh_o, qh_o, &
         & qh_int, renh_o, tpma, tpmb, uai_o, velh_max, velh_o, veli_o, &
-        & vish_o)
+        & vish_o, massphase_x, presphase_x)
          DEALLOCATE (dtk, eht_flux_int, pvwis, pdrop_kt, volis)
 !
          RETURN
