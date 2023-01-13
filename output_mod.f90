@@ -35,7 +35,9 @@ MODULE output_mod
      & (:, :), veli_o (:, :), vish_o (:, :)
       DOUBLE PRECISION, ALLOCATABLE, PRIVATE :: dtk (:), eht_flux_int &
      & (:), ehtfx_int (:), gtph_int (:), mtph_int (:), pvwis (:), &
-     & pdrop_kt (:), volis (:, :), massphase_x (:), presphase_x (:)
+     & pdrop_kt (:), volis (:, :), massphase_x (:), presphase_x (:), &
+     & a_coef_mass_x (:,:), b_coef_mass_x (:,:), &
+     & a_coef_pres_x (:,:), b_coef_pres_x (:,:)
       DOUBLE PRECISION, PRIVATE :: entcor0, entcor1, eht_pos_int_1, &
      & entbdy_int (2), grcool, grcadj, htflux, inefct, inefnm, inefn1, &
      & inefn2, megdif, ntcadj, ntacop, pdrop_int, prloss, pvwk0, pvwk1, &
@@ -378,6 +380,7 @@ CONTAINS
          pdpphs = find_phase (tpma, tpmb, 8, 4)
 
          CALL PHASE_ALL_X
+         CALL FOURIER_COEFF_ALL_X
 !
 !
 !      print and plot results
@@ -399,7 +402,8 @@ CONTAINS
         & fricth_o, gfx_o, gfx_int, gtph_int, hcnh_o, hth_o, hfx_o, &
         & hfx_int, matcdh_o, mfxh_o, mtph_int, pgradh_o, prsh_o, qh_o, &
         & qh_int, renh_o, tpma, tpmb, uai_o, velh_max, velh_o, veli_o, &
-        & vish_o, massphase_x, presphase_x)
+        & vish_o, massphase_x, presphase_x, &
+        & a_coef_mass_x, b_coef_mass_x, a_coef_pres_x, b_coef_pres_x)
          DEALLOCATE (dtk, eht_flux_int, pvwis, pdrop_kt, volis)
 !
          RETURN
@@ -941,7 +945,8 @@ CONTAINS
          DOUBLE PRECISION, INTENT (IN) :: tcycle_lc
          INTEGER :: ncout, nxa (5)
          DOUBLE PRECISION :: tmph (0:nx, 3), tmpi (nx, 3), tcyc_out
-         CHARACTER (LEN=40) :: label, labx, laby
+         DOUBLE PRECISION :: fcom (nx, 7)
+         CHARACTER (LEN=50) :: label, labx, laby
          IF (nplt >= 1) THEN
             tcyc_out = 1.0d0
             ncout = ncyc
@@ -977,6 +982,59 @@ CONTAINS
             laby = " PHASE (DEG)"
             nxa (1) = nx
             CALL dwtcrvm (xs, tmpi, nx, nxa, 2, 1, label, labx, laby)
+
+            ! fourier coefficients of mass and pressure
+            fcom (:, 1) = a_coef_mass_x (:, 0)
+            fcom (:, 2) = a_coef_mass_x (:, 1)
+            fcom (:, 3) = a_coef_mass_x (:, 2)
+            fcom (:, 4) = a_coef_mass_x (:, 3)
+            fcom (:, 5) = a_coef_mass_x (:, 4)
+            fcom (:, 6) = a_coef_mass_x (:, 5)
+            fcom (:, 7) = a_coef_mass_x (:, 6)
+            WRITE (label, "('am0:a am1:b am2:c am3:d am4:e am5:f am6:g' )")
+            WRITE (labx, "(' X   AT T=',f11.3)") tcycle_lc
+            laby = " FOUR COEFF MASS SINE (kg/s)"
+            nxa (1) = nx
+            CALL dwtcrvm (xs, fcom, nx, nxa, 7, 1, label, labx, laby)
+
+            fcom (:, 1) = b_coef_mass_x (:, 0)
+            fcom (:, 2) = b_coef_mass_x (:, 1)
+            fcom (:, 3) = b_coef_mass_x (:, 2)
+            fcom (:, 4) = b_coef_mass_x (:, 3)
+            fcom (:, 5) = b_coef_mass_x (:, 4)
+            fcom (:, 6) = b_coef_mass_x (:, 5)
+            fcom (:, 7) = b_coef_mass_x (:, 6)
+            WRITE (label, "('bm0:a bm1:b bm2:c bm3:d bm4:e bm5:f bm6:g' )")
+            WRITE (labx, "(' X   AT T=',f11.3)") tcycle_lc
+            laby = " FOUR COEFF MASS COS (kg/s)"
+            nxa (1) = nx
+            CALL dwtcrvm (xs, fcom, nx, nxa, 7, 1, label, labx, laby)
+
+            fcom (:, 1) = a_coef_pres_x (:, 0)
+            fcom (:, 2) = a_coef_pres_x (:, 1)
+            fcom (:, 3) = a_coef_pres_x (:, 2)
+            fcom (:, 4) = a_coef_pres_x (:, 3)
+            fcom (:, 5) = a_coef_pres_x (:, 4)
+            fcom (:, 6) = a_coef_pres_x (:, 5)
+            fcom (:, 7) = a_coef_pres_x (:, 6)
+            WRITE (label, "('ap0:a ap1:b ap2:c ap3:d ap4:e ap5:f ap6:g' )")
+            WRITE (labx, "(' X   AT T=',f11.3)") tcycle_lc
+            laby = " FOUR COEFF PRES SINE (Pa)"
+            nxa (1) = nx
+            CALL dwtcrvm (xs, fcom, nx, nxa, 7, 1, label, labx, laby)
+
+            fcom (:, 1) = b_coef_pres_x (:, 0)
+            fcom (:, 2) = b_coef_pres_x (:, 1)
+            fcom (:, 3) = b_coef_pres_x (:, 2)
+            fcom (:, 4) = b_coef_pres_x (:, 3)
+            fcom (:, 5) = b_coef_pres_x (:, 4)
+            fcom (:, 6) = b_coef_pres_x (:, 5)
+            fcom (:, 7) = b_coef_pres_x (:, 6)
+            WRITE (label, "('bp0:a bp1:b bp2:c bp3:d bp4:e bp5:f bp6:g' )")
+            WRITE (labx, "(' X   AT T=',f11.3)") tcycle_lc
+            laby = " FOUR COEFF PRES COS (Pa)"
+            nxa (1) = nx
+            CALL dwtcrvm (xs, fcom, nx, nxa, 7, 1, label, labx, laby)
 
          END IF
          IF (nplt >= 3) THEN
@@ -1437,9 +1495,9 @@ CONTAINS
 
 
       SUBROUTINE PHASE_ALL_X
-!     calculates the phase of mass and pressure at all x locations
-!     relative to pressure at right end
+!     calculates the phase of mass and pressure at all x locations relative to pressure at right end
 !     saves to two arrays: massphase_x, presphase_x
+!     calculates using the max of the waveforms, so not accurate if higher order harmonics present
          INTEGER :: II
          REAL :: phasemass, phasepres
          ALLOCATE (massphase_x(nx), presphase_x(nx))
@@ -1450,12 +1508,36 @@ CONTAINS
             phasemass = find_phase (tpma, tpmb, 9, 4) !phase of mass flow
             tpma (0:ncyc) = prsi_o (II, 0:ncyc)
             phasepres = find_phase (tpma, tpmb, 10, 4) !phase of pressure
-            !WRITE(*,9910) phasemass, phasepres
-            !9910 FORMAT (2f10.4)
             massphase_x(II) = phasemass
             presphase_x(II) = phasepres
          END DO
+         
       END SUBROUTINE
-!
+
+      SUBROUTINE FOURIER_COEFF_ALL_X
+         !calculates the fourier coefficients of mass flow and pressure flow
+         !components includes the 0th harmonic i.e. DC component 
+         !a_coefs are the sine coefficients, b_coefs are the cosine coefficients
+         INTEGER :: iii, i, components=7
+         DOUBLE PRECISION :: tseconds (0:ncyc), phsang
+         DOUBLE PRECISION, ALLOCATABLE :: a_coefs(:), b_coefs(:)
+         ALLOCATE (a_coefs(0:components-1), b_coefs(0:components-1))
+         ALLOCATE (a_coef_mass_x(nx, 0:components-1), b_coef_mass_x(nx, 0:components-1))
+         ALLOCATE (a_coef_pres_x(nx, 0:components-1), b_coef_pres_x(nx, 0:components-1))
+
+         tseconds (0:ncyc) = tcyc_o (0:ncyc) / herz
+         DO iii = 1, nx
+            tpma (0:ncyc) = mfxi_o (iii, 0:ncyc) !mass flow
+            CALL fouran(ncyc, tseconds, tpma, herz*2.0*pi, components-1, a_coefs, b_coefs)
+            a_coef_mass_x(iii, :) = a_coefs
+            b_coef_mass_x(iii, :) = b_coefs
+         END DO
+         DO iii = 1, nx
+            tpma (0:ncyc) = prsi_o (iii, 0:ncyc) !pressure
+            CALL fouran(ncyc, tseconds, tpma, herz*2.0*pi, components-1, a_coefs, b_coefs)
+            a_coef_pres_x(iii, :) = a_coefs
+            b_coef_pres_x(iii, :) = b_coefs
+         END DO
+      END SUBROUTINE
 END MODULE output_mod
 !

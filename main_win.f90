@@ -321,7 +321,7 @@ PROGRAM main
 !     Modified 7/13/09 to return real*8 from he3props. Also other mods in he3
 !     Modified 7/20/09 to add output values gasar,gasars,gasvo,gasvor and effic.
 !     Modified 11/3/09 to restart instead of abort from resfun error in advan.
-      DATA verson / 'Version: 3.3.3   Jan 10, 2023' /
+      DATA verson / 'Version: 3.4.1   Jan 13, 2023' /
 !
 !     set the input device number, standard output device,
 !     and debug printout flag, also set logical device numbers for

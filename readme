@@ -1,13 +1,17 @@
-## Update 1/10/2023 Ryan Snodgrass. Version 3.3.3
+## Update 1/13/2023 Ryan Snodgrass. Version 3.4.1
 
--Added mass flow phase and pressure phase relative to pressure at the right end, as a function of x. This is printed in the rgwt file for the last cycle. These changes are in output_mod.f90. Phase is calculated using the maximum of the waveforms and not Fourier transforms.
--After compiling with gfortran using -O3 (high runtime optimization) the rg33 executable is smaller in size and slower than the original REGEN3.3 executable (unsure why, but it appears the original used lf95 to compile). Test file: 0.875 s for new executable versus 0.48 s for original executable.
+-Added printing of Fourier coefficients for mass flow and pressure to the rgwt file. Printed at last cycle. See function FOURIER_COEFF_ALL_X in output_mod.f90 and function fouran in compute_mod.f90. The "a" coefficients in the rgwt file are sine and the "b" coefficients are cosine.
+-Added mass flow phase and pressure phase relative to pressure at the right end, as a function of x. This is printed in the rgwt file for the last cycle. These changes are in output_mod.f90. Phase is calculated using the maximum of the waveforms.
+-After compiling with gfortran using -O3 (high runtime optimization) the rg33 executable is smaller in size and may be slower than the original REGEN3.3 executable. Test file: 0.875 s for new executable versus 0.48 s for original executable. However, for a file with many more time steps and x mesh points, run time seems to be the same as REGEN3.3 (~ 16 minutes for both compiled executables).
+-rgwt files parsed and plotted using Python. rgwt plotter not updated or tested.
 -Updated makefile for gfortran and Windows.
 -.bat file for compiling with mingw32.
 -data.dat appears to need an empty line at the end for successful parsing.
--rg33opt.exe same as rg33.exe?
+-rg33opt.exe same as rg33.exe. Other .exes have not been updated.
 
 ##
+
+
 
 A makefile is included as an example for running on linux. It will, most likely,
 need to be edited.  

@@ -160,7 +160,7 @@ END IF
 WRITE (nfile,55) ntype+1
 55    FORMAT('KTYPE=',i1)
 WRITE (nfile,65) label,labx,laby
-65    FORMAT(a40/a40/a40)
+65    FORMAT(a42/a40/a40)
 IF(ntype == 1)THEN
   kup=1
   CALL dput1d(xi,yi,ndy,nx,ncrv,ntype)
@@ -222,7 +222,7 @@ SUBROUTINE dput1d(x,y,nd,nx,ncrv,ntype)
 !     plot packages
 
 use wtmmod
-INTEGER, PARAMETER :: maxcrv=5
+INTEGER, PARAMETER :: maxcrv=8
 INTEGER :: nd,nx(*),ncrv,ntype, nxm
 DOUBLE PRECISION :: x(nd,*),y(nd,*), xc(nd,maxcrv), yc(nd,maxcrv)
 !     local variables
@@ -243,7 +243,7 @@ END IF
 !     write out the header required to read the file
 
 10    FORMAT(3(1X,i6))
-20    FORMAT(1P,1X,6E13.5)
+20    FORMAT(1P,1X,8E13.5)
 IF(ntype == 1)THEN
   WRITE (nfile,10) nx(1),ncrv,ntype
   DO  i=1,nx(1)
@@ -297,7 +297,7 @@ WRITE (nfile,10) nx,ny,ntype
 10    FORMAT(1X,5(1X,i6))
 
 WRITE (nfile,20) ((u(i,j),i=1,nx),j=1,ny)
-20    FORMAT(1P,1X,6E13.5)
+20    FORMAT(1P,1X,8E13.5)
 
 RETURN
 END SUBROUTINE dputwt2
@@ -418,7 +418,7 @@ SUBROUTINE put1d(x,y,nd,nx,ncrv,ntype)
 
 use wtmmod
 
-INTEGER, PARAMETER :: maxcrv=5
+INTEGER, PARAMETER :: maxcrv=8
 INTEGER :: nd, nx(*), ncrv, ntype, nxm
 REAL :: x(nd,*),y(nd,*), xc(nd,maxcrv), yc(nd,maxcrv)
 !     local variables
@@ -496,7 +496,7 @@ WRITE (nfile,10) nx,ny,ntype
 10    FORMAT(1X,5(1X,i6))
 
 WRITE (nfile,20) ((u(i,j),i=1,nx),j=1,ny)
-20    FORMAT(1P,1X,6E13.5)
+20    FORMAT(1P,1X,8E13.5)
 
 RETURN
 END SUBROUTINE putwt2

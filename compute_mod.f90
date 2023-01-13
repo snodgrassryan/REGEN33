@@ -1424,20 +1424,20 @@ if(resfail>0)write (prtdev,"(' advan: resfail>0 ierr=',i8)")ierr%num
       RETURN
       END SUBROUTINE rowprt
 
-      SUBROUTINE fouran (npts, tn, fn, omega, mfour, amp, phase)
+      SUBROUTINE fouran (npts, tn, fn, omega, mfour, afs, bfs)
 !
 !     Compute fourier coefficients of fn(tn), fn(i) evaluated at tn(i).
-!     The amplitude at m*omega*t is returned in amp(m), 1<=m<=mfour,
-!     and the phase in phase(m).
+!     The amplitude at m*omega*t is returned in afs(m) and bfs(m) for sine and cosine
 !     There are npts points, npts-1 intervals, fn(1)=fn(npts).
 !
       IMPLICIT NONE
       INTEGER, INTENT(IN) ::  npts, mfour 
       INTEGER             ::  m, i
       DOUBLE PRECISION, INTENT(IN) ::  tn (*), fn(*), omega
-      DOUBLE PRECISION, INTENT(OUT) :: amp (0:mfour), phase (0:mfour) 
+      DOUBLE PRECISION, INTENT(OUT) :: afs (0:mfour), bfs (0:mfour)
       DOUBLE PRECISION    :: herz, pi2, af, bf
-!
+      DOUBLE PRECISION :: amp (0:mfour), phase (0:mfour)
+
       pi2 = 2.0d0 * Acos (-1.0d0)
       herz = omega / pi2
       DO m = 0, mfour
@@ -1450,7 +1450,7 @@ if(resfail>0)write (prtdev,"(' advan: resfail>0 ierr=',i8)")ierr%num
            & (fn(i+1)*Cos(m*omega*tn(i+1))+fn(i)*Cos(m*omega*tn(i)))
          END DO
          IF (m .EQ. 0) THEN
-            af = 0.0
+            af = 0.
             bf = herz * bf
             IF (bf .GE. 0.) THEN
                phase (m) = 0.
@@ -1467,6 +1467,8 @@ if(resfail>0)write (prtdev,"(' advan: resfail>0 ierr=',i8)")ierr%num
             END IF
          END IF
          amp (m) = Sqrt (af**2+bf**2)
+         afs (m) = af
+         bfs (m) = bf
       END DO
       RETURN
       END SUBROUTINE fouran
